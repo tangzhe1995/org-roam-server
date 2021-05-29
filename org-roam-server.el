@@ -282,7 +282,7 @@ or [{ \"id\": \"test\", \"parent\" : \"tags\"  }]"
                        (link (elt match 0)))
                    (if (file-exists-p path)
                        (setq file-string
-                             (s-replace link (format "[[file:%s]%s]"
+                             (s-replace link (format "[[file:/%s][%s]]"
                                                      (secure-hash 'sha256 path)
                                                      (elt match 4))
                                         file-string)))))
@@ -311,7 +311,9 @@ or [{ \"id\": \"test\", \"parent\" : \"tags\"  }]"
                (erase-buffer)
                (insert file-string)))
          (setq html-string (org-export-as 'html)))
-       (insert html-string))))
+       (insert html-string)
+       (goto-char (point-min))
+       (replace-string "file://" ""))))
 
 (defun org-roam-server-capture-servlet ()
   "Create a servlet for the recently captured `org-roam` file.
@@ -471,9 +473,9 @@ DESCRIPTION is the shown attribute to the user if the image is not rendered."
        (eval (org-roam-server-inline-image-servlet link))
        (let ((html-link (secure-hash 'sha256 link)))
          (if org-roam-server-authenticate
-             (format "<img src=%s?token=%s alt=%s />"
+             (format "<img src=/%s?token=%s alt=%s />"
                      html-link org-roam-server-token desc)
-           (format "<img src=%s alt=%s />" html-link desc)))))))
+           (format "<img src=/%s alt=%s />" html-link desc)))))))
 
 ;;;###autoload
 (define-minor-mode org-roam-server-mode
